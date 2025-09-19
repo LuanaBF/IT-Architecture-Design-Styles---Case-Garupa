@@ -1,0 +1,40 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+ 
+
+LAYOUT_LANDSCAPE()
+LAYOUT_WITH_LEGEND()
+
+title Componente Diagram - Garupa
+
+Boundary(banco,"Gestão de Viagens") {
+    Container(servicoViagens, "Serviço de Gestão de Viagens", "Java", "Gerencia o ciclo de vida das viagens")
+    
+    Boundary(aprovacao_boundary, "Fluxo De Gestão de Viagens"){
+        Component(controladorSolicitacoes, "Controlador de Solicitações", "REST Controller", "Recebe pedidos de viagem dos clientes")
+        Component(motorAlocacao, "Motor de Alocação", "Service", "Seleciona o motorista ideal com base na localização e disponibilidade")
+        Component(gerenciadorStatus, "Gerenciador de Status", "Service", "Atualiza o progresso da viagem em tempo real")
+        Component(integradorPagamentos, "Integrador de Pagamentos", "Service", "Comunica com o Serviço de Pagamentos para processar transações")
+        Component(notificador, "Notificador", "Service", "Envia atualizações para passageiros e motoristas via push/SMS")
+        ComponentDb(bancoRelacional, "Banco de Dados Relacional", "PostgreSQL")
+    }
+
+    Container_Ext(servicoGeolocalizacao, "Serviço de Geolocalização", "API de mapas")
+    Container_Ext(servicoPagamentos, "Serviço de Pagamentos", "Processamento financeiro")
+    Container_Ext(servicoNotificacoes, "Serviço de Notificações", "Push/SMS")
+    
+}
+Rel(servicoViagens, controladorSolicitacoes, "Orquestra requisições")
+Rel(controladorSolicitacoes, motorAlocacao, "Solicita alocação de motorista")
+Rel(motorAlocacao, gerenciadorStatus, "Inicia e atualiza status da viagem")
+Rel(gerenciadorStatus, integradorPagamentos, "Solicita cobrança")
+Rel(gerenciadorStatus, notificador, "Envia atualizações")
+
+Rel(integradorPagamentos, servicoPagamentos, "Processa pagamento")
+Rel(notificador, servicoNotificacoes, "Dispara push/SMS")
+Rel(motorAlocacao, servicoGeolocalizacao, "Consulta localização e rotas")
+Rel(gerenciadorStatus, bancoRelacional, "Atualiza dados da viagem")
+
+@enduml

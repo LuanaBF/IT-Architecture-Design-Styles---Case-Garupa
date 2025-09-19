@@ -1,0 +1,23 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title System Context Diagram - Garupa
+
+Person(passageiro, "Passageiro", "Usuário que solicita corridas")
+Person(motorista, "Motorista", "Usuário que realiza corridas")
+Person(socioOperador, "Sócio-Operador Regional", "Responsável pela operação local")
+Person(empresaCliente, "Empresa Cliente", "Contrata serviços corporativos")
+Person(autoridade, "Autoridade Reguladora", "Fiscaliza e audita o serviço")
+
+System_Boundary(garupa, "Plataforma Garupa") {
+  Container(appMovel, "Aplicativo Móvel", "Flutter", "Interface para passageiros e motoristas")
+  Container(interfaceWeb, "Interface Web", "React", "Portal de gestão para parceiros e empresas")
+ }
+
+Rel(passageiro, appMovel, "Solicita Corrida")
+Rel(motorista, appMovel, "Recebe Corrida")
+Rel(socioOperador, interfaceWeb, "Gerencia Operações")
+Rel(empresaCliente, interfaceWeb, "Solicita Serviços Corporativos")
+Rel(autoridade, interfaceWeb, "Fiscaliza e Audita")
+
+@enduml

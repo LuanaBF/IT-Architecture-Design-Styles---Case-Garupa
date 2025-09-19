@@ -1,0 +1,69 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_LANDSCAPE()
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram - Garupa
+
+' Atores externos
+Person(usuarioApp, "Usuário (App/Web)", "Passageiros, motoristas e administradores")
+
+System_Boundary(garupa, "Plataforma Garupa") {
+
+  Container(appMovel, "Aplicativo Móvel", "Flutter", "Interface para passageiros e motoristas")
+  Container(interfaceWeb, "Interface Web", "React", "Portal de gestão para parceiros e empresas")
+
+  Container(apiGateway, "API Gateway", "Node.js", "Roteamento e autenticação")
+  Container(geoService, "Serviço de Geolocalização", "Python", "Consulta e rastreamento de localização")
+  Container(viagemService, "Serviço de Gestão de Viagens", "Java", "Gerenciamento de corridas")
+  Container(servicosMobilidade, "Serviços de Mobilidade", "Java", "Lógica de negócios e orquestração de corridas")
+  Container(pagamentoService, "Serviço de Pagamentos", "Python", "Processamento de pagamentos")
+  Container(notificacaoService, "Serviço de Notificações", "Node.js", "Envio de SMS e push")
+
+  ContainerDb(bancoRelacional, "Banco Relacional (PostgreSQL)", "PostgreSQL", "Dados estruturados de usuários e viagens")
+  ContainerDb(bancoNoSQL, "Banco NoSQL (Logs/Telemetria)", "MongoDB", "Logs e dados de telemetria")
+
+  Container(cloudProvider, "Cloud Provider", "AWS", "Infraestrutura em nuvem")
+  Container(monitoramento, "Monitoramento", "Prometheus", "Observabilidade e métricas")
+  Container(seguranca, "Segurança", "Keycloak", "Autenticação e controle de acesso")
+}
+
+' Relações
+Rel(usuarioApp, appMovel, "Usa")
+Rel(usuarioApp, interfaceWeb, "Usa")
+
+Rel(appMovel, apiGateway, "Chama APIs")
+Rel(interfaceWeb, apiGateway, "Chama APIs")
+
+Rel(apiGateway, viagemService, "Encaminha requisições")
+Rel(viagemService, bancoRelacional, "Lê/Escreve dados de viagens")
+
+Rel(geoService, bancoNoSQL, "Armazena dados de localização")
+Rel(notificacaoService, appMovel, "Envia notificações")
+
+' Conexões adicionais para geolocalização
+Rel(appMovel, geoService, "Envia localização em tempo real")
+Rel(viagemService, geoService, "Consulta localização de passageiros e motoristas")
+Rel(geoService, monitoramento, "Envia métricas de rastreamento")
+Rel(geoService, cloudProvider, "Usa infraestrutura para processamento de localização")
+Rel(geoService, notificacaoService, "Gera alertas de proximidade e chegada")
+
+' Conexões para o Serviço de Segurança
+Rel(appMovel, seguranca, "Autentica usuários")
+Rel(interfaceWeb, seguranca, "Autentica usuários")
+Rel(apiGateway, seguranca, "Valida tokens e permissões")
+
+' Conexões corrigidas para o Serviço de Pagamentos
+Rel(appMovel, pagamentoService, "Solicita pagamento")
+Rel(apiGateway, pagamentoService, "Encaminha requisições de pagamento")
+Rel(pagamentoService, bancoRelacional, "Lê/Escreve dados financeiros")
+Rel(pagamentoService, seguranca, "Valida autenticação e permissões")
+
+' Conexões para Serviços de Mobilidade
+Rel(servicosMobilidade, viagemService, "Orquestra corridas")
+Rel(servicosMobilidade, geoService, "Consulta localização para lógica de mobilidade")
+Rel(servicosMobilidade, pagamentoService, "Solicita cobrança de corridas")
+Rel(apiGateway, servicosMobilidade, "Encaminha requisições de mobilidade")
+
+@enduml
